@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waskita Jawi - Penanggalan & Pusaka Budaya Jawa Interaktif</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        jawa: {
+                            50: '#fcfbfa',
+                            100: '#f4f1ea',
+                            200: '#e5ddd0',
+                            300: '#d0c2ab',
+                            400: '#b4a081',
+                            500: '#9c8461',
+                            600: '#856d4e',
+                            700: '#6b573f',
+                            800: '#584735',
+                            900: '#483b2d',
+                            950: '#282018',
+                            gold: '#d4af37',
+                            'gold-light': '#f3e5ab',
+                            'gold-dark': '#aa820a',
+                            terracotta: '#c86d51',
+                            sage: '#7d8e75',
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['"Cinzel"', 'serif'],
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .font-cinzel {
+            font-family: 'Cinzel', serif;
+        }
+        .bg-batik {
+            background-color: #282018;
+            background-image: radial-gradient(#d4af37 0.75px, transparent 0.75px), radial-gradient(#d4af37 0.75px, #282018 0.75px);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+            background-opacity: 0.05;
+        }
+        .gold-gradient {
+            background: linear-gradient(135deg, #d4af37 0%, #aa820a 50%, #f3e5ab 100%);
+        }
+        .gold-text-gradient {
+            background: linear-gradient(135deg, #f3e5ab 0%, #d4af37 50%, #aa820a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f4f1ea;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #b4a081;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #856d4e;
+        }
+    </style>
+</head>
+<body class="bg-jawa-50 text-jawa-900 min-h-full flex flex-col selection:bg-jawa-gold selection:text-white" x-data="waskitaApp()">
+
+    <!-- Header / Navbar -->
+    <header class="bg-jawa-950 text-jawa-100 shadow-xl border-b border-jawa-gold/30 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" @click="activeTab = 'home'">
+                <div class="w-12 h-12 rounded-full gold-gradient flex items-center justify-center text-jawa-950 shadow-md">
+                    <i class="fa-solid fa-feather text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-cinzel text-2xl font-bold tracking-wider gold-text-gradient">WASKITA JAWI</h1>
+                    <p class="text-xs text-jawa-300 tracking-widest uppercase">Penanggalan & Pusaka Budaya</p>
+                </div>
+            </div>
+
+            <!-- Desktop Nav -->
+            <nav class="hidden md:flex space-x-2">
+                <button @click="activeTab = 'home'" :class="activeTab === 'home' ? 'bg-jawa-800 text-jawa-gold border-jawa-gold' : 'text-jawa-200 hover:bg-jawa-900 hover:text-white border-transparent'" class="px-4 py-2 rounded-lg text-sm font-medium border transition-all duration-200 flex items-center space-x-2">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Beranda</span>
+                </button>
+                <button @click="activeTab = 'weton'" :class="activeTab === 'weton' ? 'bg-jawa-800 text-jawa-gold border-jawa-gold' : 'text-jawa-200 hover:bg-jawa-900 hover:text-white border-transparent'" class="px-4 py-2 rounded-lg text-sm font-medium border transition-all duration-200 flex items-center space-x-2">
+                    <i class="fa-solid fa-calendar-day"></i>
+                    <span>Hitung Weton</span>
+                </button>
+                <button @click="activeTab = 'jodoh'" :class="activeTab === 'jodoh' ? 'bg-jawa-800 text-jawa-gold border-jawa-gold' : 'text-jawa-200 hover:bg-jawa-900 hover:text-white border-transparent'" class="px-4 py-2 rounded-lg text-sm font-medium border transition-all duration-200 flex items-center space-x-2">
+                    <i class="fa-solid fa-ring"></i>
+                    <span>Cek Jodoh</span>
+                </button>
+                <button @click="activeTab = 'kalender'" :class="activeTab === 'kalender' ? 'bg-jawa-800 text-jawa-gold border-jawa-gold' : 'text-jawa-200 hover:bg-jawa-900 hover:text-white border-transparent'" class="px-4 py-2 rounded-lg text-sm font-medium border transition-all duration-200 flex items-center space-x-2">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    <span>Kalender Jawa</span>
+                </button>
+            </nav>
+
+            <!-- Mobile Menu Button -->
+            <div class="md:hidden flex items-center">
+                <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-jawa-200 hover:text-jawa-gold p-2 rounded-lg focus:outline-none">
+                    <i :class="mobileMenuOpen ? 'fa-solid fa-xmark text-2xl' : 'fa-solid fa-bars text-2xl'"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div x-show="mobileMenuOpen" x-transition class="md:hidden bg-jawa-900 border-b border-jawa-gold/20 px-4 pt-2 pb-4 space-y-2">
+            <button @click="activeTab = 'home'; mobileMenuOpen = false" :class="activeTab === 'home' ? 'bg-jawa-800 text-jawa-gold' : 'text-jawa-200'" class="w-full text-left px-4 py-3 rounded-lg text-base font-medium flex items-center space-x-3">
+                <i class="fa-solid fa-house w-6"></i>
+                <span>Beranda</span>
+            </button>
+            <button @click="activeTab = 'weton'; mobileMenuOpen = false" :class="activeTab === 'weton' ? 'bg-jawa-800 text-jawa-gold' : 'text-jawa-200'" class="w-full text-left px-4 py-3 rounded-lg text-base font-medium flex items-center space-x-3">
+                <i class="fa-solid fa-calendar-day w-6"></i>
+                <span>Hitung Weton</span>
+            </button>
+            <button @click="activeTab = 'jodoh'; mobileMenuOpen = false" :class="activeTab === 'jodoh' ? 'bg-jawa-800 text-jawa-gold' : 'text-jawa-200'" class="w-full text-left px-4 py-3 rounded-lg text-base font-medium flex items-center space-x-3">
+                <i class="fa-solid fa-ring w-6"></i>
+                <span>Cek Jodoh</span>
+            </button>
+            <button @click="activeTab = 'kalender'; mobileMenuOpen = false" :class="activeTab === 'kalender' ? 'bg-jawa-800 text-jawa-gold' : 'text-jawa-200'" class="w-full text-left px-4 py-3 rounded-lg text-base font-medium flex items-center space-x-3">
+                <i class="fa-solid fa-calendar-days w-6"></i>
+                <span>Kalender Jawa</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- HOME / HERO VIEW -->
+        <div x-show="activeTab === 'home'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" class="space-y-12">
+            <!-- Hero Banner -->
+            <div class="relative rounded-3xl overflow-hidden bg-jawa-950 text-white shadow-2xl border border-jawa-gold/30">
+                <div class="absolute inset-0 bg-batik opacity-20"></div>
+                <div class="relative z-10 px-6 py-16 sm:px-12 sm:py-24 max-w-3xl space-y-6">
+                    <span class="inline-flex items-center space-x-2 bg-jawa-gold/20 border border-jawa-gold/50 text-jawa-gold px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wider uppercase">
+                        <i class="fa-solid fa-star text-[10px]"></i>
+                        <span>Warisan Leluhur Nusantara</span>
+                    </span>
+                    <h1 class="font-cinzel text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight">
+                        Menyelami Kebijaksanaan <span class="gold-text-gradient">Weton & Primbon</span> Jawa
+                    </h1>
+                    <p class="text-jawa-200 text-base sm:text-lg leading-relaxed font-light">
+                        Jelajahi karakter diri, hitung kecocokan jodoh suci, serta telusuri kalender weton harian berbasis penanggalan tradisional Jawa yang akurat dan berestetika modern.
+                    </p>
+                    <div class="pt-4 flex flex-wrap gap-4">
+                        <button @click="activeTab = 'weton'" class="gold-gradient text-jawa-950 font-bold px-8 py-4 rounded-xl shadow-lg hover:opacity-95 transition transform hover:-translate-y-0.5 flex items-center space-x-3">
+                            <i class="fa-solid fa-calculator"></i>
+                            <span>Cek Weton Sekarang</span>
+                        </button>
+                        <button @click="activeTab = 'kalender'" class="bg-jawa-900 border border-jawa-gold/40 text-jawa-gold hover:bg-jawa-800 font-semibold px-8 py-4 rounded-xl transition flex items-center space-x-3">
+                            <i class="fa-solid fa-calendar-days"></i>
+                            <span>Lihat Kalender Weton</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div @click="activeTab = 'weton'" class="bg-white rounded-2xl p-8 shadow-md border border-jawa-200 hover:border-jawa-gold transition cursor-pointer group flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <div class="w-14 h-14 rounded-xl bg-jawa-100 text-jawa-700 group-hover:bg-jawa-gold group-hover:text-jawa-950 flex items-center justify-center text-2xl transition-colors">
+                            <i class="fa-solid fa-user-pen"></i>
+                        </div>
+                        <h3 class="font-cinzel text-xl font-bold text-jawa-900">Hitung Weton Individual</h3>
+                        <p class="text-jawa-600 text-sm leading-relaxed">
+                            Masukkan tanggal lahir untuk mengetahui Hari, Pasaran, Neptu, Watak bawaan lahir, hingga elemen Pancasuda spiritual Anda.
+                        </p>
+                    </div>
+                    <div class="pt-6 flex items-center text-jawa-700 group-hover:text-jawa-gold font-semibold text-sm space-x-2">
+                        <span>Mulai Hitung</span>
+                        <i class="fa-solid fa-arrow-right transition-transform group-hover:translate-x-1"></i>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div @click="activeTab = 'jodoh'" class="bg-white rounded-2xl p-8 shadow-md border border-jawa-200 hover:border-jawa-gold transition cursor-pointer group flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <div class="w-14 h-14 rounded-xl bg-jawa-100 text-jawa-700 group-hover:bg-jawa-gold group-hover:text-jawa-950 flex items-center justify-center text-2xl transition-colors">
+                            <i class="fa-solid fa-hand-holding-heart"></i>
+                        </div>
+                        <h3 class="font-cinzel text-xl font-bold text-jawa-900">Kalkulator Cek Jodoh</h3>
+                        <p class="text-jawa-600 text-sm leading-relaxed">
+                            Uji kecocokan pasangan berdasarkan primbon (Pegat, Ratu, Jodoh, Padu, Sujanan, Pesthi, dll.) lengkap dengan interpretasi mendalam.
+                        </p>
+                    </div>
+                    <div class="pt-6 flex items-center text-jawa-700 group-hover:text-jawa-gold font-semibold text-sm space-x-2">
+                        <span>Uji Kecocokan</span>
+                        <i class="fa-solid fa-arrow-right transition-transform group-hover:translate-x-1"></i>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div @click="activeTab = 'kalender'" class="bg-white rounded-2xl p-8 shadow-md border border-jawa-200 hover:border-jawa-gold transition cursor-pointer group flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <div class="w-14 h-14 rounded-xl bg-jawa-100 text-jawa-700 group-hover:bg-jawa-gold group-hover:text-jawa-950 flex items-center justify-center text-2xl transition-colors">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </div>
+                        <h3 class="font-cinzel text-xl font-bold text-jawa-900">Kalender Weton Netral</h3>
+                        <p class="text-jawa-600 text-sm leading-relaxed">
+                            Kalender interaktif bulanan yang menampilkan Pasaran Jawa serta total Neptu secara transparan dan edukatif di setiap tanggalnya.
+                        </p>
+                    </div>
+                    <div class="pt-6 flex items-center text-jawa-700 group-hover:text-jawa-gold font-semibold text-sm space-x-2">
+                        <span>Buka Kalender</span>
+                        <i class="fa-solid fa-arrow-right transition-transform group-hover:translate-x-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FEATURE 1: HITUNG WETON INDIVIDUAL -->
+        <div x-show="activeTab === 'weton'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" class="space-y-8">
+            <div class="text-center max-w-2xl mx-auto space-y-3">
+                <span class="text-xs font-bold text-jawa-700 uppercase tracking-widest bg-jawa-200/60 px-3 py-1 rounded-full">Kalkulator Weton</span>
+                <h2 class="font-cinzel text-3xl font-bold text-jawa-900">Hitung Weton & Karakter Kelahiran</h2>
+                <p class="text-jawa-600 text-sm">Masukkan tanggal lahir Anda untuk menyingkap rahasia hari pasaran, neptu, watak bawaan, serta elemen spiritual.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <!-- Input Form Card -->
+                <div class="lg:col-span-5 bg-white rounded-2xl p-6 sm:p-8 shadow-md border border-jawa-200 space-y-6">
+                    <h3 class="font-cinzel text-lg font-bold text-jawa-900 border-b border-jawa-100 pb-3 flex items-center space-x-2">
+                        <i class="fa-solid fa-id-card text-jawa-gold"></i>
+                        <span>Data Kelahiran Anda</span>
+                    </h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-jawa-700 uppercase tracking-wider mb-2">Nama Lengkap (Opsional)</label>
+                            <input type="text" x-model="wetonName" placeholder="Contoh: Bagus Dimas" class="w-full px-4 py-3 rounded-xl border border-jawa-300 focus:outline-none focus:ring-2 focus:ring-jawa-gold text-sm bg-jawa-50/50">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-jawa-700 uppercase tracking-wider mb-2">Tanggal Lahir Masehi</label>
+                            <input type="date" x-model="wetonDate" class="w-full px-4 py-3 rounded-xl border border-jawa-300 focus:outline-none focus:ring-2 focus:ring-jawa-gold text-sm bg-jawa-50/50">
+                        </div>
+
+                        <button @click="calculateWeton()" class="w-full gold-gradient text-jawa-950 font-bold py-3.5 px-6 rounded-xl shadow hover:opacity-95 transition flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-calculator"></i>
+                            <span>Hitung Weton Sekarang</span>
+                        </button>
+                    </div>
+
+                    <!-- Riwayat Pencarian Terakhir -->
+                    <template x-if="wetonHistory.length > 0">
+                        <div class="pt-4 border-t border-jawa-100 space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-jawa-700 uppercase tracking-wider">Riwayat Tersimpan</span>
+                                <button @click="clearWetonHistory()" class="text-xs text-red-600 hover:underline">Hapus</button>
+                            </div>
+                            <div class="space-y-2 max-h-40 overflow-y-auto">
+                                <template x-for="(item, index) in wetonHistory" :key="index">
+                                    <div @click="loadWetonHistory(item)" class="p-2.5 rounded-lg bg-jawa-50 hover:bg-jawa-100 border border-jawa-200 text-xs cursor-pointer flex justify-between items-center transition">
+                                        <div>
+                                            <span class="font-bold text-jawa-900" x-text="item.name || 'Tanpa Nama'"></span>
+                                            <span class="text-jawa-500 block" x-text="item.formattedDate"></span>
+                                        </div>
+                                        <span class="bg-jawa-200 px-2 py-1 rounded text-jawa-800 font-semibold" x-text="item.wetonName + ' (' + item.totalNeptu + ')'"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Result Output Area -->
+                <div class="lg:col-span-7">
+                    <template x-if="!wetonResult">
+                        <div class="bg-white rounded-2xl p-12 text-center border border-dashed border-jawa-300 space-y-4">
+                            <div class="w-16 h-16 bg-jawa-100 text-jawa-400 rounded-full flex items-center justify-center mx-auto text-2xl">
+                                <i class="fa-solid fa-feather-pointed"></i>
+                            </div>
+                            <h4 class="font-cinzel text-lg font-bold text-jawa-800">Belum Ada Data Dihitung</h4>
+                            <p class="text-sm text-jawa-500 max-w-sm mx-auto">Silakan masukkan tanggal lahir Anda di samping lalu klik tombol "Hitung Weton Sekarang".</p>
+                        </div>
+                    </template>
+
+                    <template x-if="wetonResult">
+                        <div class="bg-white rounded-2xl shadow-xl border border-jawa-gold/40 overflow-hidden space-y-6">
+                            <!-- Header Result -->
+                            <div class="bg-jawa-950 text-white p-6 sm:p-8 relative overflow-hidden">
+                                <div class="absolute inset-0 bg-batik opacity-15"></div>
+                                <div class="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                    <div>
+                                        <span class="text-xs uppercase tracking-widest text-jawa-gold font-semibold">Hasil Perhitungan Weton</span>
+                                        <h3 class="font-cinzel text-2xl font-bold mt-1" x-text="wetonResult.name"></h3>
+                                        <p class="text-sm text-jawa-300 mt-1" x-text="'Lahir: ' + wetonResult.formattedDate"></p>
+                                    </div>
+                                    <div class="bg-jawa-gold text-jawa-950 px-4 py-3 rounded-xl text-center shadow-lg">
+                                        <span class="block text-[10px] uppercase font-bold tracking-wider">Total Neptu</span>
+                                        <span class="font-cinzel text-3xl font-black" x-text="wetonResult.totalNeptu"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-6 sm:p-8 space-y-6">
+                                <!-- Weton Badges -->
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                    <div class="bg-jawa-50 p-4 rounded-xl border border-jawa-200 text-center">
+                                        <span class="text-xs text-jawa-500 block font-medium">Hari Masehi</span>
+                                        <span class="font-bold text-jawa-900 text-base mt-1 block" x-text="wetonResult.dayName"></span>
+                                        <span class="text-xs text-jawa-600 mt-0.5 block" x-text="'Nilai: ' + wetonResult.dayValue"></span>
+                                    </div>
+                                    <div class="bg-jawa-50 p-4 rounded-xl border border-jawa-200 text-center">
+                                        <span class="text-xs text-jawa-500 block font-medium">Pasaran Jawa</span>
+                                        <span class="font-bold text-jawa-900 text-base mt-1 block" x-text="wetonResult.pasaranName"></span>
+                                        <span class="text-xs text-jawa-600 mt-0.5 block" x-text="'Nilai: ' + wetonResult.pasaranValue"></span>
+                                    </div>
+                                    <div class="bg-jawa-50 p-4 rounded-xl border border-jawa-200 text-center">
+                                        <span class="text-xs text-jawa-500 block font-medium">Weton Lengkap</span>
+                                        <span class="font-bold text-jawa-900 text-base mt-1 block" x-text="wetonResult.wetonName"></span>
+                                        <span class="text-xs text-jawa-600 mt-0.5 block">Hari + Pasaran</span>
+                                    </div>
+                                    <div class="bg-jawa-50 p-4 rounded-xl border border-jawa-200 text-center">
+                                        <span class="text-xs text-jawa-500 block font-medium">Elemen Pancasuda</span>
+                                        <span class="font-bold text-jawa-900 text-xs mt-1 block" x-text="wetonResult.pancasuda.name"></span>
+                                        <span class="text-[10px] text-jawa-600 mt-0.5 block" x-text="wetonResult.pancasuda.desc"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Watak / Karakter -->
+                                <div class="space-y-3 bg-jawa-50/70 p-6 rounded-2xl border border-jawa-200">
+                                    <h4 class="font-cinzel font-bold text-jawa-900 flex items-center space-x-2 text-base">
+                                        <i class="fa-solid fa-book-open text-jawa-gold"></i>
+                                        <span>Watak & Karakter Bawaan (<span x-text="wetonResult.wetonName"></span>)</span>
+                                    </h4>
+                                    <p class="text-sm text-jawa-700 leading-relaxed" x-text="wetonResult.watak"></p>
+                                </div>
+
+                                <!-- Action buttons -->
+                                <div class="flex justify-end space-x-3 pt-2">
+                                    <button @click="copyWetonResult()" class="px-4 py-2.5 rounded-xl border border-jawa-300 text-jawa-800 hover:bg-jawa-100 text-xs font-semibold flex items-center space-x-2 transition">
+                                        <i class="fa-solid fa-copy"></i>
+                                        <span>Salin Hasil</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- FEATURE 2: KALKULATOR CEK JODOH -->
+        <div x-show="activeTab === 'jodoh'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" class="space-y-8">
+            <div class="text-center max-w-2xl mx-auto space-y-3">
+                <span class="text-xs font-bold text-jawa-700 uppercase tracking-widest bg-jawa-200/60 px-3 py-1 rounded-full">Kalkulator Primbon Jodoh</span>
+                <h2 class="font-cinzel text-3xl font-bold text-jawa-900">Uji Kecocokan Pasangan</h2>
+                <p class="text-jawa-600 text-sm">Bandingkan tanggal lahir Anda dan pasangan untuk mengetahui ramalan kecocokan berdasarkan Primbon Betaljemur Adammakna.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <!-- Input Jodoh Form -->
+                <div class="lg:col-span-5 bg-white rounded-2xl p-6 sm:p-8 shadow-md border border-jawa-200 space-y-6">
+                    <h3 class="font-cinzel text-lg font-bold text-jawa-900 border-b border-jawa-100 pb-3 flex items-center space-x-2">
+                        <i class="fa-solid fa-users text-jawa-gold"></i>
+                        <span>Data Kedua Pihak</span>
+                    </h3>
+
+                    <div class="space-y-6">
+                        <!-- Pihak 1 -->
+                        <div class="space-y-3 p-4 rounded-xl bg-jawa-50/50 border border-jawa-200">
+                            <h4 class="font-bold text-xs uppercase tracking-wider text-jawa-800 flex items-center space-x-2">
+                                <i class="fa-solid fa-user text-jawa-gold"></i>
+                                <span>Pihak Pertama (Pria/Wanita)</span>
+                            </h4>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-jawa-600 mb-1">Nama Panggilan</label>
+                                <input type="text" x-model="jodohName1" placeholder="Contoh: Dimas" class="w-full px-3 py-2.5 rounded-lg border border-jawa-300 text-sm focus:outline-none focus:ring-2 focus:ring-jawa-gold bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-jawa-600 mb-1">Tanggal Lahir</label>
+                                <input type="date" x-model="jodohDate1" class="w-full px-3 py-2.5 rounded-lg border border-jawa-300 text-sm focus:outline-none focus:ring-2 focus:ring-jawa-gold bg-white">
+                            </div>
+                        </div>
+
+                        <!-- Pihak 2 -->
+                        <div class="space-y-3 p-4 rounded-xl bg-jawa-50/50 border border-jawa-200">
+                            <h4 class="font-bold text-xs uppercase tracking-wider text-jawa-800 flex items-center space-x-2">
+                                <i class="fa-solid fa-user text-jawa-gold"></i>
+                                <span>Pihak Kedua (Pasangan)</span>
+                            </h4>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-jawa-600 mb-1">Nama Panggilan</label>
+                                <input type="text" x-model="jodohName2" placeholder="Contoh: Rini" class="w-full px-3 py-2.5 rounded-lg border border-jawa-300 text-sm focus:outline-none focus:ring-2 focus:ring-jawa-gold bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-jawa-600 mb-1">Tanggal Lahir</label>
+                                <input type="date" x-model="jodohDate2" class="w-full px-3 py-2.5 rounded-lg border border-jawa-300 text-sm focus:outline-none focus:ring-2 focus:ring-jawa-gold bg-white">
+                            </div>
+                        </div>
+
+                        <button @click="calculateJodoh()" class="w-full gold-gradient text-jawa-950 font-bold py-3.5 px-6 rounded-xl shadow hover:opacity-95 transition flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-heart-circle-check"></i>
+                            <span>Hitung Kecocokan Jodoh</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Jodoh Result Output -->
+                <div class="lg:col-span-7">
+                    <template x-if="!jodohResult">
+                        <div class="bg-white rounded-2xl p-12 text-center border border-dashed border-jawa-300 space-y-4">
+                            <div class="w-16 h-16 bg-jawa-100 text-jawa-400 rounded-full flex items-center justify-center mx-auto text-2xl">
+                                <i class="fa-solid fa-ring"></i>
+                            </div>
+                            <h4 class="font-cinzel text-lg font-bold text-jawa-800">Belum Ada Data Pasangan</h4>
+                            <p class="text-sm text-jawa-500 max-w-sm mx-auto">Silakan masukkan tanggal lahir kedua belah pihak di samping lalu klik tombol "Hitung Kecocokan Jodoh".</p>
+                        </div>
+                    </template>
+
+                    <template x-if="jodohResult">
+                        <div class="bg-white rounded-2xl shadow-xl border border-jawa-gold/40 overflow-hidden space-y-6">
+                            <!-- Header Result -->
+                            <div class="bg-jawa-950 text-white p-6 sm:p-8 relative overflow-hidden">
+                                <div class="absolute inset-0 bg-batik opacity-15"></div>
+                                <div class="relative z-10 text-center space-y-2">
+                                    <span class="text-xs uppercase tracking-widest text-jawa-gold font-semibold">Hasil Analisis Primbon Jodoh</span>
+                                    <h3 class="font-cinzel text-2xl sm:text-3xl font-bold" x-text="jodohResult.name1 + ' & ' + jodohResult.name2"></h3>
+                                    <div class="flex justify-center items-center gap-6 pt-2 text-sm text-jawa-300">
+                                        <div><span class="text-jawa-gold font-bold" x-text="jodohResult.weton1.wetonName"></span> (Neptu: <span x-text="jodohResult.neptu1"></span>)</div>
+                                        <span>+</span>
+                                        <div><span class="text-jawa-gold font-bold" x-text="jodohResult.weton2.wetonName"></span> (Neptu: <span x-text="jodohResult.neptu2"></span>)</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-6 sm:p-8 space-y-6">
+                                <!-- Main Category Result Badge -->
+                                <div class="bg-jawa-50 p-6 rounded-2xl border border-jawa-200 text-center space-y-3">
+                                    <span class="text-xs uppercase font-bold tracking-wider text-jawa-600">Total Gabungan Neptu: <strong class="text-jawa-900 text-base" x-text="jodohResult.totalNeptu"></strong></span>
+                                    <div class="inline-block px-6 py-2.5 rounded-full gold-gradient text-jawa-950 font-cinzel text-xl font-bold shadow-md" x-text="jodohResult.category.name"></div>
+                                    <p class="text-sm text-jawa-700 max-w-lg mx-auto pt-2 leading-relaxed" x-text="jodohResult.category.desc"></p>
+                                </div>
+
+                                <!-- Detailed Method Breakdown -->
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="p-4 rounded-xl bg-jawa-50 border border-jawa-200 space-y-1">
+                                        <span class="text-[11px] font-bold text-jawa-500 uppercase">Metode Pembagian 9</span>
+                                        <p class="text-sm font-semibold text-jawa-900" x-text="'Sisa Sembilan: ' + jodohResult.remainder9"></p>
+                                        <p class="text-xs text-jawa-600">Metode klasik untuk melihat dominasi kehidupan rumah tangga (Pegat, Ratu, Jodoh, Padu, Sujanan, Pesthi, dll).</p>
+                                    </div>
+                                    <div class="p-4 rounded-xl bg-jawa-50 border border-jawa-200 space-y-1">
+                                        <span class="text-[11px] font-bold text-jawa-500 uppercase">Metode Pembagian 7</span>
+                                        <p class="text-sm font-semibold text-jawa-900" x-text="'Sisa Tujuh: ' + jodohResult.remainder7 + ' (' + jodohResult.category7.name + ')'"></p>
+                                        <p class="text-xs text-jawa-600" x-text="jodohResult.category7.desc"></p>
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-end space-x-3 pt-2">
+                                    <button @click="copyJodohResult()" class="px-4 py-2.5 rounded-xl border border-jawa-300 text-jawa-800 hover:bg-jawa-100 text-xs font-semibold flex items-center space-x-2 transition">
+                                        <i class="fa-solid fa-copy"></i>
+                                        <span>Salin Hasil Cek Jodoh</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- FEATURE 3: KALENDER WETON & HARI JAWA NETRAL -->
+        <div x-show="activeTab === 'kalender'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" class="space-y-8">
+            <div class="text-center max-w-2xl mx-auto space-y-3">
+                <span class="text-xs font-bold text-jawa-700 uppercase tracking-widest bg-jawa-200/60 px-3 py-1 rounded-full">Kalender Interaktif</span>
+                <h2 class="font-cinzel text-3xl font-bold text-jawa-900">Kalender Weton & Penanggalan Jawa</h2>
+                <p class="text-jawa-600 text-sm">Navigasi bulan dan tanggal untuk melihat informasi pasaran Jawa, hari, serta total neptu secara netral dan edukatif.</p>
+            </div>
+
+            <!-- Calendar Container Card -->
+            <div class="bg-white rounded-2xl shadow-xl border border-jawa-200 overflow-hidden">
+                <!-- Calendar Header / Controls -->
+                <div class="bg-jawa-950 text-white p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-center gap-4 relative overflow-hidden">
+                    <div class="absolute inset-0 bg-batik opacity-15"></div>
+                    <div class="relative z-10 flex items-center space-x-4">
+                        <button @click="changeMonth(-1)" class="w-10 h-10 rounded-xl bg-jawa-900 border border-jawa-gold/40 text-jawa-gold hover:bg-jawa-800 flex items-center justify-center transition">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <h3 class="font-cinzel text-xl sm:text-2xl font-bold tracking-wide w-48 text-center" x-text="monthNames[currentMonth] + ' ' + currentYear"></h3>
+                        <button @click="changeMonth(1)" class="w-10 h-10 rounded-xl bg-jawa-900 border border-jawa-gold/40 text-jawa-gold hover:bg-jawa-800 flex items-center justify-center transition">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+
+                    <div class="relative z-10 flex items-center space-x-4 text-xs font-medium">
+                        <span class="text-jawa-300">Klik tanggal untuk melihat rincian weton</span>
+                        <button @click="goToToday()" class="px-4 py-2 rounded-lg bg-jawa-gold text-jawa-950 font-bold hover:opacity-90 transition">Hari Ini</button>
+                    </div>
+                </div>
+
+                <!-- Calendar Grid -->
+                <div class="p-6 sm:p-8 space-y-4">
+                    <!-- Days of Week Header -->
+                    <div class="grid grid-cols-7 gap-2 text-center font-bold text-xs uppercase tracking-wider text-jawa-500">
+                        <div class="text-rose-600">Minggu</div>
+                        <div>Senin</div>
+                        <div>Selasa</div>
+                        <div>Rabu</div>
+                        <div>Kamis</div>
+                        <div>Jumat</div>
+                        <div>Sabtu</div>
+                    </div>
+
+                    <!-- Days Grid -->
+                    <div class="grid grid-cols-7 gap-2">
+                        <template x-for="day in calendarDays" :key="day.dateKey">
+                            <div @click="selectCalendarDate(day)" 
+                                 :class="[
+                                     !day.isCurrentMonth ? 'opacity-30 bg-gray-50' : 'cursor-pointer hover:border-jawa-gold hover:bg-jawa-50 shadow-sm bg-white border-jawa-200',
+                                     day.isToday ? 'ring-2 ring-jawa-gold ring-offset-2' : ''
+                                 ]"
+                                 class="p-2.5 sm:p-3 rounded-xl border transition flex flex-col justify-between h-24 sm:h-28 relative group">
+                                
+                                <div class="flex justify-between items-start">
+                                    <span class="font-bold text-sm sm:text-base text-jawa-900" x-text="day.dayNumber"></span>
+                                    <span class="text-[9px] px-1.5 py-0.5 rounded bg-jawa-100 text-jawa-700 font-semibold" x-text="'N:' + day.neptu"></span>
+                                </div>
+
+                                <div class="space-y-0.5 text-left">
+                                    <span class="block font-bold text-xs text-jawa-900 truncate" x-text="day.pasaran"></span>
+                                    <span class="block text-[10px] text-jawa-500 truncate" x-text="day.dayName"></span>
+                                </div>
+
+                                <div class="absolute bottom-1 right-2 opacity-0 group-hover:opacity-100 transition text-[10px] text-jawa-gold font-bold">
+                                    <i class="fa-solid fa-circle-info"></i>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal Detail Tanggal Kalender (Netral / Edukatif) -->
+    <template x-if="modalDateData">
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" x-transition>
+            <div @click.outside="modalDateData = null" class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-jawa-gold/30 space-y-6 relative overflow-hidden">
+                <!-- Close Button -->
+                <button @click="modalDateData = null" class="absolute top-6 right-6 w-8 h-8 rounded-full bg-jawa-100 text-jawa-700 hover:bg-jawa-200 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+
+                <div class="space-y-2">
+                    <span class="text-xs uppercase font-bold tracking-wider text-jawa-gold bg-jawa-950 px-3 py-1 rounded-full inline-block">Rincian Penanggalan Jawa</span>
+                    <h3 class="font-cinzel text-2xl font-bold text-jawa-900" x-text="modalDateData.formattedDate"></h3>
+                    <p class="text-sm font-semibold text-jawa-700" x-text="'Weton: ' + modalDateData.dayName + ' ' + modalDateData.pasaran"></p>
+                </div>
+
+                <div class="space-y-4 pt-2 border-t border-jawa-100">
+                    <div class="grid grid-cols-3 gap-3 text-center">
+                        <div class="bg-jawa-50 p-3 rounded-xl border border-jawa-200">
+                            <span class="text-[11px] text-jawa-500 block">Nilai Hari</span>
+                            <span class="font-bold text-jawa-900 text-base" x-text="modalDateData.dayValue"></span>
+                        </div>
+                        <div class="bg-jawa-50 p-3 rounded-xl border border-jawa-200">
+                            <span class="text-[11px] text-jawa-500 block">Nilai Pasaran</span>
+                            <span class="font-bold text-jawa-900 text-base" x-text="modalDateData.pasaranValue"></span>
+                        </div>
+                        <div class="bg-jawa-50 p-3 rounded-xl border border-jawa-200">
+                            <span class="text-[11px] text-jawa-500 block">Total Neptu</span>
+                            <span class="font-bold text-jawa-900 text-base text-jawa-gold-dark" x-text="modalDateData.neptu"></span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1 bg-jawa-50/70 p-4 rounded-xl border border-jawa-200">
+                        <h4 class="font-bold text-xs uppercase tracking-wider text-jawa-800">Karakter / Watak Weton</h4>
+                        <p class="text-xs text-jawa-700 leading-relaxed" x-text="modalDateData.watak"></p>
+                    </div>
+
+                    <div class="space-y-1 bg-jawa-50/70 p-4 rounded-xl border border-jawa-200">
+                        <h4 class="font-bold text-xs uppercase tracking-wider text-jawa-800">Kajian Pancasuda</h4>
+                        <p class="text-xs text-jawa-700 font-semibold" x-text="modalDateData.pancasuda.name"></p>
+                        <p class="text-xs text-jawa-600 leading-relaxed" x-text="modalDateData.pancasuda.desc"></p>
+                    </div>
+                </div>
+
+                <button @click="modalDateData = null" class="w-full py-3 rounded-xl bg-jawa-950 text-jawa-gold font-bold hover:bg-jawa-900 transition text-sm">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </template>
+
+    <!-- Footer -->
+    <footer class="bg-jawa-950 text-jawa-300 border-t border-jawa-gold/20 mt-16 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-3">
+            <div class="flex justify-center items-center space-x-2">
+                <div class="w-8 h-8 rounded-full gold-gradient flex items-center justify-center text-jawa-950 font-bold">
+                    <i class="fa-solid fa-feather text-xs"></i>
+                </div>
+                <span class="font-cinzel text-lg font-bold text-jawa-gold tracking-wider">WASKITA JAWI</span>
+            </div>
+            <p class="text-xs text-jawa-400">Melestarikan kearifan lokal penanggalan dan primbon budaya Jawa dalam sentuhan modern.</p>
+            <p class="text-[11px] text-jawa-500 pt-4">&copy; 2026 Waskita Jawi. Hak Cipta Dilindungi.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        function waskitaApp() {
+            return {
+                activeTab: 'home',
+                mobileMenuOpen: false,
+
+                // Weton Individual State
+                wetonName: '',
+                wetonDate: '',
+                wetonResult: null,
+                wetonHistory: [],
+
+                // Jodoh State
+                jodohName1: '',
+                jodohDate1: '',
+                jodohName2: '',
+                jodohDate2: '',
+                jodohResult: null,
+
+                // Calendar State
+                currentDateObj: new Date(),
+                currentMonth: new Date().getMonth(),
+                currentYear: new Date().getFullYear(),
+                calendarDays: [],
+                modalDateData: null,
+
+                monthNames: [
+                    "Januari", "Februari", "Maret", "April", "Mei", "Juni", 
+                    "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+                ],
+
+                init() {
+                    const saved = localStorage.getItem('waskita_weton_history');
+                    if (saved) {
+                        try {
+                            this.wetonHistory = JSON.parse(saved);
+                        } catch (e) {
+                            this.wetonHistory = [];
+                        }
+                    }
+                    this.generateCalendar();
+                },
+
+                // --- JAVANESE CALENDAR & WETON ENGINE ---
+                getDayAndPasaran(date) {
+                    const epoch = new Date(1900, 0, 1); // 1 Jan 1900
+                    const diffTime = date.getTime() - epoch.getTime();
+                    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+                    const dayNames = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+                    const dayValues = [5, 4, 3, 7, 8, 6, 9];
+
+                    const pasaranNames = ["Legi", "Pahing", "Pon", "Wage", "Kliwon"];
+                    const pasaranValues = [5, 9, 7, 4, 8];
+
+                    const dayIndex = date.getDay();
+                    const dayName = dayNames[dayIndex];
+                    const dayValue = dayValues[dayIndex];
+
+                    const pasaranIndex = (diffDays % 5 + 5) % 5;
+                    const pasaranName = pasaranNames[pasaranIndex];
+                    const pasaranValue = pasaranValues[pasaranIndex];
+
+                    const totalNeptu = dayValue + pasaranValue;
+                    const wetonName = `${dayName} ${pasaranName}`;
+
+                    return {
+                        dayName,
+                        dayValue,
+                        pasaranName,
+                        pasaranValue,
+                        totalNeptu,
+                        wetonName
+                    };
+                },
+
+                getPancasuda(neptu) {
+                    const remainder = neptu % 5;
+                    const pancasudaMap = {
+                        1: { name: "Sumur Sinabang", desc: "Luas wawasannya, menjadi tempat orang bertanya dan mencari ilmu." },
+                        2: { name: "Satria Wibawa", desc: "Mendapat kemuliaan, kehormatan, serta wibawa tinggi di masyarakat." },
+                        3: { name: "Lakuning Rembulan", desc: "Menyejukkan hati orang lain, simpatik, dan mempesona." },
+                        4: { name: "Bumi Kapetak", desc: "Pekerja keras, tahan banting, tekun, dan sabar menghadapi cobaan." },
+                        0: { name: "Satria Wirang", desc: "Sering menghadapi rintangan, fitnah, atau ujian hidup sebelum mencapai kemuliaan." }
+                    };
+                    return pancasudaMap[remainder] || pancasudaMap[0];
+                },
+
+                getWatak(wetonName) {
+                    const watakDatabase = {
+                        "Senin Legi": "Memiliki watak seperti Lakuning Angin; ceria, lincah, pandai bergaul, namun kadang mudah terpengaruh dan bimbang dalam mengambil keputusan besar.",
+                        "Senin Pahing": "Pendiriannya kuat, jujur, rajin, mandiri, namun terkadang keras kepala dan mudah tersinggung jika harga dirinya disentuh.",
+                        "Senin Pon": "Wataknya tenang namun tegas, cerdas, pandai mencari rezeki, berwibawa, dan sangat menyayangi keluarga.",
+                        "Senin Wage": "Pendiam, penurut, setia kepada pasangan, namun jika sudah marah sangat menakutkan dan sulit diredakan.",
+                        "Senin Kliwon": "Berbudi pekerti luhur, pemaaf, pandai berbicara, berwawasan luas, serta memiliki daya imajinasi dan kreativitas tinggi.",
+                        "Selasa Legi": "Optimis, dermawan, mudah beradaptasi dengan lingkungan baru, namun terkadang ceroboh dan kurang teliti.",
+                        "Selasa Pahing": "Pemberani, tegas, memiliki jiwa kepemimpinan yang kuat, namun mudah marah dan ambisius dalam mencapai tujuan.",
+                        "Selasa Pon": "Jujur, setia, sabar, pandai mengelola keuangan, namun memiliki rasa curiga yang cukup tinggi terhadap orang lain.",
+                        "Selasa Wage": "Pekerja keras, pantang menyerah, dermawan, penurut, namun sering merasa rendah diri di hadapan orang lain.",
+                        "Selasa Kliwon": "Pandai bertutur kata, berwawasan luas, mudah bergaul, namun terkadang suka membantah dan keras kepala.",
+                        "Rabu Legi": "Jujur, adil, menghormati orang lain, setia pada janji, serta memiliki pendirian yang sangat kokoh.",
+                        "Rabu Pahing": "Tenang, sabar, penuh perhitungan, memiliki kepedulian sosial yang tinggi, dan disenangi banyak orang.",
+                        "Rabu Pon": "Berbudi luhur, berwibawa, beruntung dalam urusan rezeki, namun terkadang suka memuji diri sendiri.",
+                        "Rabu Wage": "Rendah hati, jujur, giat bekerja, penurut, dan tidak suka mencari musuh dalam lingkungan sosialnya.",
+                        "Rabu Kliwon": "Memiliki spiritual tinggi, ramah, pandai bergaul, setia, serta sangat menghargai ikatan kekeluargaan.",
+                        "Kamis Legi": "Dermawan, mandiri, pekerja keras, memiliki tanggung jawab besar, namun kadang suka mencampuri urusan orang lain.",
+                        "Kamis Pahing": "Cerdas, berwawasan luas, bercita-cita tinggi, sabar, namun mudah curiga dan keras kepala.",
+                        "Kamis Pon": "Penuh tanggung jawab, pandai menjaga rahasia, berwibawa, namun terkadang keras kepala dan suka membantah.",
+                        "Kamis Wage": "Pekerja keras, teliti, mandiri, setia, dan memiliki kecerdasan di atas rata-rata.",
+                        "Kamis Kliwon": "Bijaksana, pemaaf, berjiwa sosial tinggi, namun mudah tersinggung jika nasihatnya diabaikan.",
+                        "Jumat Legi": "Jujur, setia, banyak rezekinya, suka menolong sesama, namun mudah terpengaruh oleh bujuk rayu orang lain.",
+                        "Jumat Pahing": "Berwibawa, disegani, dermawan, memiliki daya tarik yang kuat, namun mudah marah dan ambisius.",
+                        "Jumat Pon": "Tenang, bijaksana, memiliki pemikiran yang mendalam, berbudi luhur, namun pendiam dan tertutup.",
+                        "Jumat Wage": "Pemaaf, setia, jujur, pekerja keras, namun mudah merasa cemas dan kurang percaya diri.",
+                        "Jumat Kliwon": "Memiliki karisma tinggi, pemaaf, berjiwa pemimpin, disukai banyak orang, namun terkadang keras kepala.",
+                        "Sabtu Legi": "Bertanggung jawab, dermawan, pandai bergaul, setia, namun mudah tersinggung dan keras hati.",
+                        "Sabtu Pahing": "Pekerja keras, bersemangat tinggi, mandiri, namun mudah marah, ambisius, dan keras kepala.",
+                        "Sabtu Pon": "Sabar, pemaaf, pandai merencanakan masa depan, setia, namun memiliki sifat pencemburu.",
+                        "Sabtu Wage": "Penyabar, pemaaf, berjiwa besar, tahan menghadapi cobaan hidup, namun pendiam.",
+                        "Sabtu Kliwon": "Keramat, berwibawa, memiliki pengaruh besar di lingkungannya, setia, namun keras kepala dan mudah tersinggung."
+                    };
+                    return watakDatabase[wetonName] || "Memiliki keseimbangan watak positif dan dinamika kehidupan yang unik dalam perjalanan personalnya.";
+                },
+
+                // --- FEATURE 1 IMPLEMENTATION ---
+                calculateWeton() {
+                    if (!this.wetonDate) {
+                        alert("Silakan pilih tanggal lahir terlebih dahulu.");
+                        return;
+                    }
+                    const parts = this.wetonDate.split('-');
+                    const dateObj = new Date(parts[0], parts[1] - 1, parts[2]);
+                    const info = this.getDayAndPasaran(dateObj);
+                    const pancasuda = this.getPancasuda(info.totalNeptu);
+                    const watak = this.getWatak(info.wetonName);
+
+                    const formattedDate = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+                    this.wetonResult = {
+                        name: this.wetonName.trim() || 'Tanpa Nama',
+                        formattedDate,
+                        ...info,
+                        pancasuda,
+                        watak
+                    };
+
+                    const historyItem = {
+                        name: this.wetonName.trim(),
+                        formattedDate,
+                        wetonName: info.wetonName,
+                        totalNeptu: info.totalNeptu,
+                        dateStr: this.wetonDate
+                    };
+
+                    this.wetonHistory = [historyItem, ...this.wetonHistory.filter(h => h.dateStr !== this.wetonDate || h.name !== historyItem.name)].slice(0, 5);
+                    localStorage.setItem('waskita_weton_history', JSON.stringify(this.wetonHistory));
+                },
+
+                loadWetonHistory(item) {
+                    this.wetonName = item.name;
+                    this.wetonDate = item.dateStr;
+                    this.calculateWeton();
+                },
+
+                clearWetonHistory() {
+                    this.wetonHistory = [];
+                    localStorage.removeItem('waskita_weton_history');
+                },
+
+                copyWetonResult() {
+                    if (!this.wetonResult) return;
+                    const text = `Hasil Weton ${this.wetonResult.name}:\nLahir: ${this.wetonResult.formattedDate}\nWeton: ${this.wetonResult.wetonName} (Neptu: ${this.wetonResult.totalNeptu})\nWatak: ${this.wetonResult.watak}`;
+                    document.addEventListener('copy', function(e) {
+                        e.clipboardData.setData('text/plain', text);
+                        e.preventDefault();
+                    }, { once: true });
+                    document.execCommand('copy');
+                    alert('Hasil weton berhasil disalin ke clipboard!');
+                },
+
+                // --- FEATURE 2 IMPLEMENTATION ---
+                calculateJodoh() {
+                    if (!this.jodohDate1 || !this.jodohDate2) {
+                        alert("Silakan masukkan tanggal lahir kedua belah pihak.");
+                        return;
+                    }
+
+                    const parts1 = this.jodohDate1.split('-');
+                    const date1 = new Date(parts1[0], parts1[1] - 1, parts1[2]);
+                    const weton1 = this.getDayAndPasaran(date1);
+
+                    const parts2 = this.jodohDate2.split('-');
+                    const date2 = new Date(parts2[0], parts2[1] - 1, parts2[2]);
+                    const weton2 = this.getDayAndPasaran(date2);
+
+                    const totalNeptu = weton1.totalNeptu + weton2.totalNeptu;
+
+                    let rem9 = totalNeptu % 9;
+                    if (rem9 === 0) rem9 = 9;
+
+                    const jodohCategories9 = {
+                        1: { name: "PEGAT (1)", desc: "Pegat berarti putus atau berpisah. Menurut primbon, pasangan dengan kategori ini berisiko menghadapi berbagai kendala atau penyesuaian intens dalam perjalanan rumah tangga." },
+                        2: { name: "RATU (2)", desc: "Ratu bermakna dihormati dan disegani. Hubungan ini harmonis, penuh wibawa, serta dikelilingi keberkahan dan keharmonisan sosial." },
+                        3: { name: "JODOH (3)", desc: "Jodoh adalah lambang keserasian. Pasangan ini sangat cocok, saling melengkapi, sabar menerima kekurangan, dan langgeng." },
+                        4: { name: "PADU (4)", desc: "Padu bermakna sering cekcok atau berselisih paham kecil dalam komunikasi sehari-hari namun dapat diatasi." },
+                        5: { name: "SUJANAN (5)", desc: "Sujanan berarti sering mengalami ujian kecemburuan atau dinamika kepercayaan. Diperlukan komitmen komunikasi yang sangat kuat." },
+                        6: { name: "PESTHI (6)", desc: "Pesthi melambangkan ketenteraman, kerukunan, dan keharmonisan yang stabil dalam berumah tangga." },
+                        7: { name: "LEBU KATIUP ANGIN (7)", desc: "Lebu Katiup Angin berarti perlu kesiapan mental dalam menghadapi dinamika ekonomi atau mobilitas tempat tinggal." },
+                        8: { name: "PATEN (8)", desc: "Paten bermakna kuat dan kokoh. Pasangan ini mampu melewati berbagai tantangan hidup bersama dengan penuh kesetiaan." },
+                        9: { name: "WIBawa / DIBAGI 9 SISA 9", desc: "Melambangkan pasangan yang dianugerahi kewibawaan tinggi, rezeki yang berkecukupan, serta kehidupan yang terpandang." }
+                    };
+
+                    let rem7 = totalNeptu % 7;
+                    if (rem7 === 0) rem7 = 7;
+                    const jodohCategories7 = {
+                        1: { name: "Tibo Topo", desc: "Awal pernikahan memerlukan penyesuaian, namun seiring waktu semakin makmur." },
+                        2: { name: "Tibo Ratu", desc: "Sejak awal dihormati dan berkecukupan." },
+                        3: { name: "Tibo Jodoh", desc: "Mudah serasi, rukun, dan saling mendukung." },
+                        4: { name: "Tibo Pati", desc: "Ujian ketekunan mental yang membutuhkan kesabaran luar biasa." },
+                        5: { name: "Tibo Mlarat", desc: "Menekankan pentingnya pengelolaan keuangan yang bijak bersama." },
+                        6: { name: "Tibo Gedong", desc: "Melambangkan potensi kemakmuran dan kestabilan material." },
+                        7: { name: "Tibo Loro", desc: "Memerlukan perhatian ekstra terhadap kesehatan dan stamina fisik." }
+                    };
+
+                    this.jodohResult = {
+                        name1: this.jodohName1.trim() || 'Pihak 1',
+                        name2: this.jodohName2.trim() || 'Pihak 2',
+                        weton1,
+                        weton2,
+                        neptu1: weton1.totalNeptu,
+                        neptu2: weton2.totalNeptu,
+                        totalNeptu,
+                        remainder9: rem9,
+                        category: jodohCategories9[rem9] || jodohCategories9[9],
+                        remainder7: rem7,
+                        category7: jodohCategories7[rem7] || jodohCategories7[7]
+                    };
+                },
+
+                copyJodohResult() {
+                    if (!this.jodohResult) return;
+                    const text = `Hasil Cek Jodoh ${this.jodohResult.name1} & ${this.jodohResult.name2}:\nTotal Neptu: ${this.jodohResult.totalNeptu}\nKategori Utama: ${this.jodohResult.category.name}\nArtinya: ${this.jodohResult.category.desc}`;
+                    document.addEventListener('copy', function(e) {
+                        e.clipboardData.setData('text/plain', text);
+                        e.preventDefault();
+                    }, { once: true });
+                    document.execCommand('copy');
+                    alert('Hasil cek jodoh berhasil disalin ke clipboard!');
+                },
+
+                // --- FEATURE 3 IMPLEMENTATION (NEUTRAL CALENDAR) ---
+                changeMonth(direction) {
+                    this.currentMonth += direction;
+                    if (this.currentMonth > 11) {
+                        this.currentMonth = 0;
+                        this.currentYear++;
+                    } else if (this.currentMonth < 0) {
+                        this.currentMonth = 11;
+                        this.currentYear--;
+                    }
+                    this.generateCalendar();
+                },
+
+                goToToday() {
+                    const now = new Date();
+                    this.currentMonth = now.getMonth();
+                    this.currentYear = now.getFullYear();
+                    this.generateCalendar();
+                },
+
+                generateCalendar() {
+                    const days = [];
+                    const firstDayIndex = new Date(this.currentYear, this.currentMonth, 1).getDay();
+                    const totalDaysInMonth = new Date(this.currentYear, this.currentMonth + 1, 0).getDate();
+                    const prevMonthDays = new Date(this.currentYear, this.currentMonth, 0).getDate();
+
+                    // Previous month filler days
+                    for (let i = firstDayIndex - 1; i >= 0; i--) {
+                        const d = new Date(this.currentYear, this.currentMonth - 1, prevMonthDays - i);
+                        days.push(this.createCalendarDayObj(d, false));
+                    }
+
+                    // Current month days
+                    for (let i = 1; i <= totalDaysInMonth; i++) {
+                        const d = new Date(this.currentYear, this.currentMonth, i);
+                        days.push(this.createCalendarDayObj(d, true));
+                    }
+
+                    // Next month filler days to complete grid
+                    const remainingCells = 42 - days.length;
+                    for (let i = 1; i <= remainingCells; i++) {
+                        const d = new Date(this.currentYear, this.currentMonth + 1, i);
+                        days.push(this.createCalendarDayObj(d, false));
+                    }
+
+                    this.calendarDays = days;
+                },
+
+                createCalendarDayObj(dateObj, isCurrentMonth) {
+                    const wetonInfo = this.getDayAndPasaran(dateObj);
+                    const dayNumber = dateObj.getDate();
+                    const dateKey = dateObj.toISOString().split('T')[0];
+                    const isToday = dateObj.toDateString() === new Date().toDateString();
+                    const pancasuda = this.getPancasuda(wetonInfo.totalNeptu);
+                    const watak = this.getWatak(wetonInfo.wetonName);
+
+                    return {
+                        dateObj,
+                        dayNumber,
+                        dateKey,
+                        isCurrentMonth,
+                        isToday,
+                        pasaran: wetonInfo.pasaranName,
+                        pasaranValue: wetonInfo.pasaranValue,
+                        dayName: wetonInfo.dayName,
+                        dayValue: wetonInfo.dayValue,
+                        neptu: wetonInfo.totalNeptu,
+                        formattedDate: dateObj.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
+                        pancasuda,
+                        watak
+                    };
+                },
+
+                selectCalendarDate(day) {
+                    this.modalDateData = day;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
